@@ -28,11 +28,16 @@ public abstract class AbstractBenchmark {
 
     @Param({"10000", "100000"})
     int numberOfIndexPoints = 10000;
-
     int numberOfQueryPoints = 1000;
 
     @Param({"1000", "10000", "100000"})
     int queryRadiusMetres = 10000;
+
+    // roughly the UK
+    int minLat = 48;
+    int maxLat = 58;
+    int minLon = -5;
+    int maxLon = 5;
 
     final List<Long> candidateCounts = new ArrayList<>();
     final List<Long> nearestCounts = new ArrayList<>();
@@ -89,8 +94,8 @@ public abstract class AbstractBenchmark {
     }
 
     private double[] createRandomLatLon() {
-        final double latitude = ThreadLocalRandom.current().nextDouble(48, 58);
-        final double longitude = ThreadLocalRandom.current().nextDouble(-5, 5);
+        final double latitude = ThreadLocalRandom.current().nextDouble(minLat, maxLat);
+        final double longitude = ThreadLocalRandom.current().nextDouble(minLon, maxLon);
         return new double[]{latitude, longitude};
     }
 
