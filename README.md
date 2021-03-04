@@ -6,11 +6,11 @@ Currently 4 libraries are included in the benchmark:
 
 1. [Geotools](https://geotools.org)
 
-2. [Lucene](https://lucene.apache.org)
+2. [Jeospatial](https://jchambers.github.io/jeospatial)
 
-3. [Jeospatial](https://jchambers.github.io/jeospatial)
+3. [Java Spatial Index (JSI)](https://github.com/aled/jsi)
 
-4. [Java Spatial Index (JSI)](https://github.com/aled/jsi)
+4. [Lucene](https://lucene.apache.org)
 
 ### Parameters
 
@@ -22,6 +22,8 @@ The benchmarks vary two parameters
 ### Results
 
 The use of JMH is slightly subverted so that the output of the methods can be compared and this shows that the libraries do not agree on the nearest locations.
+
+It seems that Geotools and JSI differ from Jeospatial and Lucene in the way they measure distance.
 
 This could be due to precision, use of different geospatial models or distance functions.
 
