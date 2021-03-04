@@ -76,7 +76,7 @@ public class LuceneBenchmark
     @Fork(value = 1)
     @Warmup(iterations = 0)
     @Measurement(iterations = 1)
-    public void benchmark1_DistanceSortQuery() {
+    public void distanceSortQuery() {
         benchmark(latlon -> {
             Query q = LatLonPoint.newDistanceQuery(fieldName, latlon[0], latlon[1], queryRadiusMetres);
             Sort sort = new Sort(LatLonDocValuesField.newDistanceSort(fieldName, latlon[0], latlon[1]));
@@ -94,7 +94,7 @@ public class LuceneBenchmark
     @Fork(value = 1)
     @Warmup(iterations = 0)
     @Measurement(iterations = 1)
-    public void benchmark2_SortQuery() {
+    public void sortQuery() {
         benchmark(latlon -> {
             Query q = new MatchAllDocsQuery();
             Sort sort = new Sort(LatLonDocValuesField.newDistanceSort(fieldName, latlon[0], latlon[1]));
@@ -112,7 +112,7 @@ public class LuceneBenchmark
     @Fork(value = 1)
     @Warmup(iterations = 0)
     @Measurement(iterations = 1)
-    public void benchmark3_Nearest() {
+    public void nearest() {
         benchmark(latlon -> {
             try {
                 return LatLonPointPrototypeQueries.nearest(indexSearcher, fieldName, latlon[0], latlon[1], 1);

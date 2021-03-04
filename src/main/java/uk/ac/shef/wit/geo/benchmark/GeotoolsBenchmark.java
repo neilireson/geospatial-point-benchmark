@@ -105,7 +105,7 @@ public class GeotoolsBenchmark
     @Fork(value = 1)
     @Warmup(iterations = 0)
     @Measurement(iterations = 1)
-    public void benchmark() throws TransformException {
+    public void query() throws TransformException {
 
         // 1 degree is approximately 100km
         float queryRadiusDegrees = queryRadiusMetres / 100000f;

@@ -126,9 +126,9 @@ public abstract class AbstractBenchmark {
     public static void main(String[] args) throws RunnerException {
 
         Options opt = new OptionsBuilder()
-                .include(GeotoolsBenchmark.class.getSimpleName())
-                .include(JeoBenchmark.class.getSimpleName())
-                .include(JsiBenchmark.class.getSimpleName())
+//                .include(GeotoolsBenchmark.class.getSimpleName())
+//                .include(JeoBenchmark.class.getSimpleName())
+//                .include(JsiBenchmark.class.getSimpleName())
                 .include(LuceneBenchmark.class.getSimpleName())
                 .build();
 

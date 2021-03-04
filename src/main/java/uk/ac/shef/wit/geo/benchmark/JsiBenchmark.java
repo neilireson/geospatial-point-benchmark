@@ -47,7 +47,7 @@ public class JsiBenchmark
     @Fork(value = 1)
     @Warmup(iterations = 0)
     @Measurement(iterations = 1)
-    public void benchmark() {
+    public void query() {
 
         // 1 degree is approximately 100km
         float queryRadiusDegrees = queryRadiusMetres / 100000f;

@@ -53,7 +53,7 @@ public class JeoBenchmark
     @Fork(value = 1)
     @Warmup(iterations = 0)
     @Measurement(iterations = 1)
-    public void benchmark() {
+    public void query() {
 
         long nearestCount = 0;
         for (double[] latlon : getQueryPoints()) {
