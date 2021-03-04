@@ -1,4 +1,4 @@
-## Benchmark of Java point geospatial in-memory indexes
+## Benchmark of Java geospatial in-memory point indexes
 
 [JMH](http://openjdk.java.net/projects/code-tools/jmh/) is used to compute the benchmarks
 
