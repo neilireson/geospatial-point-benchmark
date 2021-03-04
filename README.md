@@ -43,7 +43,7 @@ GeotoolsBenchmark                100000         100000  thrpt         0.165     
 ```
 
 #### Jeospatial
-Performance seems to be invariant to index size, queryRadius is not used
+Performance seems to be relatively invariant to index size, queryRadius is not used
 ```
 Benchmark                 (indexPoints)  (queryRadius)   Mode  Cnt    Score   Error  Units
 JeoBenchmark                      10000           1000  thrpt        70.986          ops/s
@@ -58,6 +58,7 @@ JeoBenchmark                     100000         100000  thrpt        60.836     
 The best performance, and deals much better with varying queryRadius then geotools
 ```
 Benchmark                 (indexPoints)  (queryRadius)   Mode  Cnt    Score   Error  Units
+JsiBenchmark                      10000           1000  thrpt       407.832          ops/s
 JsiBenchmark                      10000          10000  thrpt       324.198          ops/s
 JsiBenchmark                      10000         100000  thrpt       272.265          ops/s
 JsiBenchmark                     100000           1000  thrpt       283.871          ops/s
