@@ -59,6 +59,7 @@ GeotoolsBenchmark                100000         100000  thrpt         0.165     
 GeotoolsBenchmark               1000000           1000  thrpt        67.026          ops/s
 GeotoolsBenchmark               1000000          10000  thrpt         1.651          ops/s
 GeotoolsBenchmark               1000000         100000  thrpt         0.014          ops/s
+GeotoolsBenchmark              10000000          10000  thrpt         0.040          ops/s
 ```
 
 #### Jeospatial
@@ -112,6 +113,7 @@ JsiBenchmark                     100000         100000  thrpt       152.018     
 JsiBenchmark                    1000000           1000  thrpt       134.291          ops/s
 JsiBenchmark                    1000000          10000  thrpt        82.053          ops/s
 JsiBenchmark                    1000000         100000  thrpt        43.162          ops/s
+JsiBenchmark                   10000000          10000  thrpt         3.770          ops/s
 ```
 #### Lucene
 
@@ -125,7 +127,7 @@ LuceneBenchmark.index        1000000  thrpt        0.456          ops/s
 
 ##### Querying
 Performance of sort queries is not good. Using query distance helps, particularly with a larger index.
-Using the BKDReader method currently in the sandbox produces much better performance but still not comparable with the other libraries.
+Using the BKDReader method, currently in the sandbox, produces much better performance but still not comparable with the other libraries.
 ```
 Benchmark                 (indexPoints)  (queryRadius)   Mode  Cnt    Score   Error  Units
 Lucene_SortQuery                  10000           1000  thrpt         3.228          ops/s
@@ -146,6 +148,7 @@ Lucene_DistanceSortQuery         100000         100000  thrpt         1.240     
 Lucene_DistanceSortQuery        1000000           1000  thrpt         2.443          ops/s
 Lucene_DistanceSortQuery        1000000          10000  thrpt         1.860          ops/s
 Lucene_DistanceSortQuery        1000000         100000  thrpt         0.210          ops/s
+Lucene_DistanceSortQuery       10000000          10000  thrpt         0.223          ops/s
 Lucene_Nearest                    10000           1000  thrpt        28.933          ops/s
 Lucene_Nearest                    10000          10000  thrpt        26.681          ops/s
 Lucene_Nearest                    10000         100000  thrpt        28.874          ops/s
@@ -155,4 +158,5 @@ Lucene_Nearest                   100000         100000  thrpt        26.657     
 Lucene_Nearest                  1000000           1000  thrpt        13.406          ops/s
 Lucene_Nearest                  1000000          10000  thrpt        13.010          ops/s
 Lucene_Nearest                  1000000         100000  thrpt        13.223          ops/s
+Lucene_Nearest                 10000000          10000  thrpt         0.741          ops/s
 ```

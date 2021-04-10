@@ -11,6 +11,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,12 +27,16 @@ import java.util.concurrent.ThreadLocalRandom;
 @State(Scope.Benchmark)
 public abstract class AbstractBenchmark {
 
-    @Param({"10000", "100000"})
-    int numberOfIndexPoints = 10000;
-    int numberOfQueryPoints = 1000;
+    static final String indexPrefix = "benchmark-index-points";
+    static final String queryPrefix = "benchmark-query-points";
+    static final String outputDirectoryName = "out";
 
-    @Param({"1000", "10000", "100000"})
-    int queryRadiusMetres = 10000;
+//    @Param({"10000", "100000"})
+    int numberOfIndexPoints = 10000000;
+    int numberOfQueryPoints = 10000;
+
+//    @Param({"1000", "10000", "100000"})
+    int queryRadiusMetres = 1000;
 
     // roughly the UK
     int minLat = 48;
@@ -43,25 +48,34 @@ public abstract class AbstractBenchmark {
     final List<Long> nearestCounts = new ArrayList<>();
     final List<Map.Entry<Integer, Double>> results = new ArrayList<>();
 
+    File getOutputDirectory() {
+        return createDirectory(outputDirectoryName);
+    }
+
+    private File createDirectory(String directoryPath) {
+        Path path = Paths.get(directoryPath);
+        if (!Files.exists(path)) {
+            if (!path.toFile().mkdirs()) {
+                throw new RuntimeException("Failed to create output directory: " + path.toAbsolutePath());
+            }
+        } else if (!Files.isDirectory(path)) {
+            throw new RuntimeException("Output directory is not a directory: " + path.toAbsolutePath());
+        }
+        return path.toFile();
+    }
+
     synchronized List<double[]> getIndexPoints() {
-        return getPoints("benchmark-index-points", numberOfIndexPoints);
+        return getPoints(indexPrefix, numberOfIndexPoints);
     }
 
     synchronized List<double[]> getQueryPoints() {
-        return getPoints("benchmark-query-points", numberOfQueryPoints);
+        return getPoints(queryPrefix, numberOfQueryPoints);
     }
 
     private List<double[]> getPoints(String prefix, int numberOfPoints) {
-        Path outputDirectory = Paths.get("out");
-        if (!Files.exists(outputDirectory)) {
-            if (!outputDirectory.toFile().mkdirs()) {
-                throw new RuntimeException("Failed to create output directory: " + outputDirectory.toAbsolutePath());
-            }
-        } else if (!Files.isDirectory(outputDirectory)) {
-            throw new RuntimeException("Output directory is not a directory: " + outputDirectory.toAbsolutePath());
-        }
+        getOutputDirectory();
         String filename = prefix + "-" + numberOfPoints + ".csv";
-        Path path = Paths.get("out", filename);
+        Path path = Paths.get(outputDirectoryName, filename);
         List<double[]> indexPoints = new ArrayList<>();
         if (Files.exists(path)) {
             try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
@@ -114,7 +128,7 @@ public abstract class AbstractBenchmark {
                 "-" + numberOfIndexPoints +
                 "-" + queryRadiusMetres +
                 ".csv";
-        Path path = Paths.get("out", filename);
+        Path path = Paths.get(outputDirectoryName, filename);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(path.toFile()))) {
             for (Map.Entry<Integer, Double> result : results) {
                 writer.write(String.valueOf(result.getKey()));
@@ -131,9 +145,9 @@ public abstract class AbstractBenchmark {
     public static void main(String[] args) throws RunnerException {
 
         Options opt = new OptionsBuilder()
-//                .include(GeotoolsBenchmark.class.getSimpleName())
+                .include(GeotoolsBenchmark.class.getSimpleName())
 //                .include(JeoBenchmark.class.getSimpleName())
-//                .include(JsiBenchmark.class.getSimpleName())
+                .include(JsiBenchmark.class.getSimpleName())
                 .include(LuceneBenchmark.class.getSimpleName())
                 .build();
 

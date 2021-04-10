@@ -50,6 +50,7 @@
         <jmh.version>1.28</jmh.version>
         <jsi.version>1.0.0</jsi.version>
         <lucene.version>8.8.1</lucene.version>
+        <progressbar.version>0.9.1</progressbar.version>
         <slf4j.version>1.7.30</slf4j.version>
         <slf4j.binding>slf4j-jdk14</slf4j.binding>
 
@@ -66,6 +67,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>${slf4j.binding}</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>me.tongfei</groupId>
+            <artifactId>progressbar</artifactId>
+            <version>${progressbar.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -98,11 +104,6 @@
             <artifactId>gt-main</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.slf4j</groupId>-->
-<!--            <artifactId>slf4j-api</artifactId>-->
-<!--            <version>${slf4j.version}</version>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>

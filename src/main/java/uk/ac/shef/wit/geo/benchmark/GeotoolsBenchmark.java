@@ -1,5 +1,6 @@
 package uk.ac.shef.wit.geo.benchmark;
 
+import me.tongfei.progressbar.ProgressBar;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.collection.SpatialIndexFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
@@ -79,21 +81,26 @@ public class GeotoolsBenchmark
         pointTypeBuilder.add("id", Integer.class);
         SimpleFeatureType pointFeature = pointTypeBuilder.buildFeatureType();
 
+        List<double[]> latlons = getIndexPoints();
         ArrayList<SimpleFeature> features = new ArrayList<>();
         int i = 0;
-        for (double[] latlon : getIndexPoints()) {
-            Point point = gf.createPoint(new Coordinate(latlon[1], latlon[0]));
+        try (ProgressBar pg = new ProgressBar("Points", numberOfIndexPoints)) {
+            for (double[] latlon : latlons) {
+                Point point = gf.createPoint(new Coordinate(latlon[1], latlon[0]));
 
-            SimpleFeature feature = createSimpleFeature(pointFeature, point);
+                SimpleFeature feature = createSimpleFeature(pointFeature, point);
 
-            if (feature != null) {
-                feature.setAttribute("id", ++i);
-                features.add(feature);
-            } else {
-                logger.error("Not a valid feature");
+                if (feature != null) {
+                    feature.setAttribute("id", ++i);
+                    features.add(feature);
+                } else {
+                    logger.error("Not a valid feature");
+                }
+                pg.step();
             }
         }
 
+        logger.info("Indexing {} features...", numberOfIndexPoints);
         SimpleFeatureCollection featureCollection = DataUtilities.collection(features);
         index = new SpatialIndexFeatureCollection(featureCollection.getSchema());
         index.addAll(features);

@@ -1,5 +1,6 @@
 package uk.ac.shef.wit.geo.benchmark;
 
+import me.tongfei.progressbar.ProgressBar;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.LatLonDocValuesField;
 import org.apache.lucene.document.LatLonPoint;
@@ -17,6 +18,8 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -29,15 +32,60 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.AbstractMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @State(Scope.Thread)
 public class LuceneBenchmark
-        extends AbstractBenchmark {
+        extends AbstractBenchmark
+        implements AutoCloseable {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private enum LuceneType {
+        ram, mmap, directory;
+
+        public Path getIndexPath(File outputDirectory, String suffix) {
+            switch (this) {
+                case ram:
+                    return null;
+                case mmap:
+                case directory:
+                    return Paths.get(outputDirectory.getAbsolutePath(), "lucene-" + suffix);
+                default:
+                    throw new UnsupportedOperationException("LuceneType: " + this);
+            }
+        }
+
+        public Directory getDirectory(File outputDirectory, String suffix)
+                throws IOException {
+            switch (this) {
+                case ram:
+                    return new RAMDirectory();
+                case mmap:
+                    //noinspection ConstantConditions
+                    return new MMapDirectory(getIndexPath(outputDirectory, suffix));
+                case directory:
+                    //noinspection ConstantConditions
+                    return NIOFSDirectory.open(getIndexPath(outputDirectory, suffix));
+                default:
+                    throw new UnsupportedOperationException("LuceneType: " + this);
+            }
+        }
+    }
+
+    private final LuceneType luceneType = LuceneType.directory;
 
     private final String fieldName = "location";
     private IndexSearcher indexSearcher = null;
@@ -49,24 +97,53 @@ public class LuceneBenchmark
             // MMapDirectory makes no difference to performance
 //            Path tempDirectory = Files.createTempDirectory(this.getClass().getName());
 //            final Directory directory = new MMapDirectory(tempDirectory);
-            final Directory directory = new RAMDirectory();
-            IndexWriterConfig iwConfig = new IndexWriterConfig();
-            IndexWriter indexWriter = new IndexWriter(directory, iwConfig);
+            boolean createIndex = true;
+            Path indexPath = luceneType.getIndexPath(getOutputDirectory(), indexPrefix + "-" + numberOfIndexPoints);
+            if (indexPath != null && Files.exists(indexPath)) {
+                logger.info("Reading Lucene index...");
+                int count;
 
-            int i = 0;
-            for (double[] latlon : getIndexPoints()) {
-                Document doc = new Document();
-                doc.add(new StoredField("id", ++i));
-                doc.add(new LatLonPoint(fieldName, latlon[0], latlon[1]));
-                doc.add(new LatLonDocValuesField(fieldName, latlon[0], latlon[1]));
-                indexWriter.addDocument(doc);
+                try (Directory directory = luceneType.getDirectory(getOutputDirectory(), indexPrefix + "-" + numberOfIndexPoints);
+                     IndexReader indexReader = DirectoryReader.open(directory)) {
+                    count = indexReader.numDocs();
+                }
+
+                if (count == 0) {
+                    logger.error("Index is empty");
+                } else if (numberOfIndexPoints != count) {
+                    logger.error("Index contains incorrect number of documents. Expected {}, found {}",
+                            numberOfIndexPoints, count);
+                } else {
+                    logger.info("Index {} contains {} documents", indexPath, count);
+                    createIndex = false;
+                }
             }
-            indexWriter.commit();
-            indexWriter.close();
+
+            Directory directory = luceneType.getDirectory(getOutputDirectory(), indexPrefix + "-" + numberOfIndexPoints);
+            if (createIndex) {
+                IndexWriterConfig iwConfig = new IndexWriterConfig();
+                iwConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+                IndexWriter indexWriter = new IndexWriter(directory, iwConfig);
+
+                int i = 0;
+                List<double[]> latlons = getIndexPoints();
+                try (ProgressBar progressBar = new ProgressBar("Documents:", latlons.size())) {
+                    for (double[] latlon : latlons) {
+                        progressBar.step();
+                        Document doc = new Document();
+                        doc.add(new StoredField("id", ++i));
+                        doc.add(new LatLonPoint(fieldName, latlon[0], latlon[1]));
+                        doc.add(new LatLonDocValuesField(fieldName, latlon[0], latlon[1]));
+                        indexWriter.addDocument(doc);
+                    }
+                }
+                indexWriter.commit();
+                indexWriter.close();
+            }
             final IndexReader indexReader = DirectoryReader.open(directory);
             indexSearcher = new IndexSearcher(indexReader);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -115,7 +192,7 @@ public class LuceneBenchmark
     public void nearest() {
         benchmark(latlon -> {
             try {
-                return LatLonPointPrototypeQueries.nearest(indexSearcher, fieldName, latlon[0], latlon[1], 1);
+                return LatLonPointPrototypeQueries.nearest(indexSearcher, fieldName, latlon[0], latlon[1], 10);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -157,5 +234,21 @@ public class LuceneBenchmark
     @TearDown
     public void teardown() {
         super.teardown();
+    }
+
+    @Override
+    public void close() throws IOException {
+        indexSearcher.getIndexReader().close();
+    }
+
+
+    public static void main(String[] args) {
+        try (LuceneBenchmark benchmark = new LuceneBenchmark()) {
+            benchmark.setup();
+            benchmark.nearest();
+            benchmark.teardown();
+        } catch (IOException e) {
+            logger.error("", e);
+        }
     }
 }

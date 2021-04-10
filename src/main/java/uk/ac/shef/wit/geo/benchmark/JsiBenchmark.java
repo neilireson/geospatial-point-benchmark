@@ -3,6 +3,7 @@ package uk.ac.shef.wit.geo.benchmark;
 import com.infomatiq.jsi.Point;
 import com.infomatiq.jsi.Rectangle;
 import com.infomatiq.jsi.rtree.RTree;
+import me.tongfei.progressbar.ProgressBar;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -16,6 +17,7 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 import java.util.AbstractMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,11 +35,14 @@ public class JsiBenchmark
     @Setup
     public void setup() {
         int i = 0;
-        for (double[] latlon : getIndexPoints()) {
-            Rectangle rect = new Rectangle(
-                    (float) latlon[0], (float) latlon[1],
-                    (float) latlon[0], (float) latlon[1]);
-            rtree.add(rect, ++i);
+        List<double[]> latlons = getIndexPoints();
+        try (ProgressBar pg = new ProgressBar("Points", numberOfIndexPoints)) {
+            for (double[] latlon : latlons) {
+                Rectangle rect = new Rectangle(
+                        (float) latlon[0], (float) latlon[1],
+                        (float) latlon[0], (float) latlon[1]);
+                rtree.add(rect, ++i);
+            }
         }
     }
 
