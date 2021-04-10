@@ -31,11 +31,12 @@ public abstract class AbstractBenchmark {
     static final String queryPrefix = "benchmark-query-points";
     static final String outputDirectoryName = "out";
 
-//    @Param({"10000", "100000"})
+    @Param({"10000", "100000", "1000000", "10000000"})
     int numberOfIndexPoints = 10000000;
-    int numberOfQueryPoints = 10000;
 
-//    @Param({"1000", "10000", "100000"})
+    int numberOfQueryPoints = 1000;
+
+    @Param({"1000", "10000", "100000", "1000000"})
     int queryRadiusMetres = 1000;
 
     // roughly the UK
@@ -145,7 +146,7 @@ public abstract class AbstractBenchmark {
     public static void main(String[] args) throws RunnerException {
 
         Options opt = new OptionsBuilder()
-                .include(GeotoolsBenchmark.class.getSimpleName())
+//                .include(GeotoolsBenchmark.class.getSimpleName())
 //                .include(JeoBenchmark.class.getSimpleName())
                 .include(JsiBenchmark.class.getSimpleName())
                 .include(LuceneBenchmark.class.getSimpleName())

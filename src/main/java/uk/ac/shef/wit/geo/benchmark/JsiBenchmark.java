@@ -15,7 +15,10 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JsiBenchmark
         extends AbstractBenchmark {
 
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final RTree rtree;
 
     public JsiBenchmark() {
@@ -35,13 +39,16 @@ public class JsiBenchmark
     @Setup
     public void setup() {
         int i = 0;
+        logger.info("Creating or reading {} points", numberOfIndexPoints);
         List<double[]> latlons = getIndexPoints();
+        logger.info("Indexing points");
         try (ProgressBar pg = new ProgressBar("Points", numberOfIndexPoints)) {
             for (double[] latlon : latlons) {
                 Rectangle rect = new Rectangle(
                         (float) latlon[0], (float) latlon[1],
                         (float) latlon[0], (float) latlon[1]);
                 rtree.add(rect, ++i);
+                pg.step();
             }
         }
     }

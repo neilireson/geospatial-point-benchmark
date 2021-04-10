@@ -54,14 +54,14 @@ public class LuceneBenchmark
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private enum LuceneType {
-        ram, mmap, directory;
+        ram, mmap, niofs;
 
         public Path getIndexPath(File outputDirectory, String suffix) {
             switch (this) {
                 case ram:
                     return null;
                 case mmap:
-                case directory:
+                case niofs:
                     return Paths.get(outputDirectory.getAbsolutePath(), "lucene-" + suffix);
                 default:
                     throw new UnsupportedOperationException("LuceneType: " + this);
@@ -76,7 +76,7 @@ public class LuceneBenchmark
                 case mmap:
                     //noinspection ConstantConditions
                     return new MMapDirectory(getIndexPath(outputDirectory, suffix));
-                case directory:
+                case niofs:
                     //noinspection ConstantConditions
                     return NIOFSDirectory.open(getIndexPath(outputDirectory, suffix));
                 default:
@@ -85,7 +85,7 @@ public class LuceneBenchmark
         }
     }
 
-    private final LuceneType luceneType = LuceneType.directory;
+    private final LuceneType luceneType = LuceneType.niofs;
 
     private final String fieldName = "location";
     private IndexSearcher indexSearcher = null;
@@ -94,9 +94,6 @@ public class LuceneBenchmark
     public void setup() {
 
         try {
-            // MMapDirectory makes no difference to performance
-//            Path tempDirectory = Files.createTempDirectory(this.getClass().getName());
-//            final Directory directory = new MMapDirectory(tempDirectory);
             boolean createIndex = true;
             Path indexPath = luceneType.getIndexPath(getOutputDirectory(), indexPrefix + "-" + numberOfIndexPoints);
             if (indexPath != null && Files.exists(indexPath)) {
@@ -126,7 +123,9 @@ public class LuceneBenchmark
                 IndexWriter indexWriter = new IndexWriter(directory, iwConfig);
 
                 int i = 0;
+                logger.info("Creating or reading {} points", numberOfIndexPoints);
                 List<double[]> latlons = getIndexPoints();
+                logger.info("Indexing points");
                 try (ProgressBar progressBar = new ProgressBar("Documents:", latlons.size())) {
                     for (double[] latlon : latlons) {
                         progressBar.step();

@@ -107,13 +107,19 @@ Benchmark                 (indexPoints)  (queryRadius)   Mode  Cnt    Score   Er
 JsiBenchmark                      10000           1000  thrpt       407.832          ops/s
 JsiBenchmark                      10000          10000  thrpt       324.198          ops/s
 JsiBenchmark                      10000         100000  thrpt       272.265          ops/s
+JsiBenchmark                      10000        1000000  thrpt       193.283          ops/s
 JsiBenchmark                     100000           1000  thrpt       283.871          ops/s
 JsiBenchmark                     100000          10000  thrpt       226.186          ops/s
 JsiBenchmark                     100000         100000  thrpt       152.018          ops/s
+JsiBenchmark                     100000        1000000  thrpt        62.200          ops/s
 JsiBenchmark                    1000000           1000  thrpt       134.291          ops/s
 JsiBenchmark                    1000000          10000  thrpt        82.053          ops/s
 JsiBenchmark                    1000000         100000  thrpt        43.162          ops/s
-JsiBenchmark                   10000000          10000  thrpt         3.770          ops/s
+JsiBenchmark                    1000000        1000000  thrpt        25.767          ops/s
+JsiBenchmark                   10000000           1000  thrpt        42.420          ops/s
+JsiBenchmark                   10000000          10000  thrpt        25.435          ops/s
+JsiBenchmark                   10000000         100000  thrpt        11.390          ops/s
+JsiBenchmark                   10000000        1000000  thrpt         8.906          ops/s
 ```
 #### Lucene
 
@@ -128,6 +134,8 @@ LuceneBenchmark.index        1000000  thrpt        0.456          ops/s
 ##### Querying
 Performance of sort queries is not good. Using query distance helps, particularly with a larger index.
 Using the BKDReader method, currently in the sandbox, produces much better performance but still not comparable with the other libraries.
+It seems as if one of the main differences between JSI and Lucene nearest is that JSI has a query distance limit, while Lucene considers all indexed points.
+
 ```
 Benchmark                 (indexPoints)  (queryRadius)   Mode  Cnt    Score   Error  Units
 Lucene_SortQuery                  10000           1000  thrpt         3.228          ops/s
@@ -158,5 +166,7 @@ Lucene_Nearest                   100000         100000  thrpt        26.657     
 Lucene_Nearest                  1000000           1000  thrpt        13.406          ops/s
 Lucene_Nearest                  1000000          10000  thrpt        13.010          ops/s
 Lucene_Nearest                  1000000         100000  thrpt        13.223          ops/s
-Lucene_Nearest                 10000000          10000  thrpt         0.741          ops/s
+Lucene_Nearest                 10000000           1000  thrpt         7.449          ops/s
+Lucene_Nearest                 10000000          10000  thrpt         7.932          ops/s
+Lucene_Nearest                 10000000         100000  thrpt         7.463          ops/s
 ```
