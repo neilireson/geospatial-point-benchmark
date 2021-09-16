@@ -90,6 +90,9 @@ JeoBenchmark                     100000         100000  thrpt        60.836     
 
 #### JsiBenchmark
 
+JSI is fast but only considers points in a 2 dimensional Cartesian space. 
+So latitude/longitude distance will be approximations and any calculation crossing the north/south poles or data line will be incorrect
+
 ##### Indexing
 
 ```
