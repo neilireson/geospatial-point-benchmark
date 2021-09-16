@@ -191,7 +191,7 @@ public class LuceneBenchmark
     public void nearest() {
         benchmark(latlon -> {
             try {
-                return LatLonPointPrototypeQueries.nearest(indexSearcher, fieldName, latlon[0], latlon[1], 10);
+                return LatLonPointPrototypeQueries.nearest(indexSearcher, fieldName, latlon[0], latlon[1], 1);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -243,8 +243,12 @@ public class LuceneBenchmark
 
     public static void main(String[] args) {
         try (LuceneBenchmark benchmark = new LuceneBenchmark()) {
+            long time = System.currentTimeMillis();
             benchmark.setup();
+            logger.info("Setup {} points in {}ms", benchmark.numberOfIndexPoints, System.currentTimeMillis() - time);
+            time = System.currentTimeMillis();
             benchmark.nearest();
+            logger.info("Query {} points in {}ms", benchmark.numberOfQueryPoints, System.currentTimeMillis() - time);
             benchmark.teardown();
         } catch (IOException e) {
             logger.error("", e);
