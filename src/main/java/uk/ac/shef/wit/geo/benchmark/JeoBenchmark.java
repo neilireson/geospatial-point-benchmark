@@ -2,6 +2,7 @@ package uk.ac.shef.wit.geo.benchmark;
 
 import com.eatthepath.jvptree.DistanceFunction;
 import com.eatthepath.jvptree.VPTree;
+import org.apache.lucene.util.SloppyMath;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -26,6 +27,8 @@ public class JeoBenchmark
     private VPTree<Point, LatLonPoint> index;
 
     private interface Point {
+        double getLat();
+        double getLon();
     }
 
     private static class LatLonPoint implements Point {
@@ -38,12 +41,22 @@ public class JeoBenchmark
             this.lat = lat;
             this.lon = lon;
         }
+
+        @Override
+        public double getLat() {
+            return lat;
+        }
+
+        @Override
+        public double getLon() {
+            return lon;
+        }
     }
 
     private static class HaversineDistanceFunction implements DistanceFunction<Point> {
         @Override
         public double getDistance(Point p1, Point p2) {
-            return 0;
+            return SloppyMath.haversinMeters(p1.getLat(), p1.getLon(), p2.getLat(), p2.getLon());
         }
     }
 
