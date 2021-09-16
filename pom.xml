@@ -45,13 +45,13 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
 
-        <geotools.version>24.2</geotools.version>
+        <geotools.version>26-RC</geotools.version>
         <jeospatial.version>0.2-SNAPSHOT</jeospatial.version>
-        <jmh.version>1.28</jmh.version>
+        <jmh.version>1.33</jmh.version>
         <jsi.version>1.0.0</jsi.version>
-        <lucene.version>8.8.1</lucene.version>
-        <progressbar.version>0.9.1</progressbar.version>
-        <slf4j.version>1.7.30</slf4j.version>
+        <lucene.version>8.9.0</lucene.version>
+        <progressbar.version>0.9.2</progressbar.version>
+        <slf4j.version>1.7.32</slf4j.version>
         <slf4j.binding>slf4j-jdk14</slf4j.binding>
 
         <uberjar.name>benchmarks</uberjar.name>
@@ -91,13 +91,19 @@
         </dependency>
         <dependency>
             <groupId>com.eatthepath</groupId>
-            <artifactId>jeospatial</artifactId>
-            <version>${jeospatial.version}</version>
+            <artifactId>jvptree</artifactId>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jsi</groupId>
             <artifactId>jsi</artifactId>
             <version>${jsi.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>

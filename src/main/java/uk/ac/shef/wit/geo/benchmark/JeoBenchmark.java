@@ -1,8 +1,7 @@
 package uk.ac.shef.wit.geo.benchmark;
 
-import com.eatthepath.jeospatial.GeospatialIndex;
-import com.eatthepath.jeospatial.SimpleGeospatialPoint;
-import com.eatthepath.jeospatial.VPTreeGeospatialIndex;
+import com.eatthepath.jvptree.DistanceFunction;
+import com.eatthepath.jvptree.VPTree;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -16,6 +15,7 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -23,16 +23,27 @@ import java.util.concurrent.TimeUnit;
 public class JeoBenchmark
         extends AbstractBenchmark {
 
-    private final GeospatialIndex<MySimpleGeospatialPoint> index = new VPTreeGeospatialIndex<>();
+    private VPTree<Point, LatLonPoint> index;
 
-    private static class MySimpleGeospatialPoint
-            extends SimpleGeospatialPoint {
+    private interface Point {
+    }
 
-        int id;
+    private static class LatLonPoint implements Point {
 
-        public MySimpleGeospatialPoint(int id, double lat, double lon) {
-            super(lat, lon);
+        final int id;
+        final double lat, lon;
+
+        public LatLonPoint(int id, double lat, double lon) {
             this.id = id;
+            this.lat = lat;
+            this.lon = lon;
+        }
+    }
+
+    private static class HaversineDistanceFunction implements DistanceFunction<Point> {
+        @Override
+        public double getDistance(Point p1, Point p2) {
+            return 0;
         }
     }
 
@@ -40,11 +51,12 @@ public class JeoBenchmark
     @Setup
     public void setup() {
 
+        List<LatLonPoint> points = new ArrayList<>();
         int i = 0;
         for (double[] latlon : getIndexPoints()) {
-            MySimpleGeospatialPoint point = new MySimpleGeospatialPoint(++i, latlon[0], latlon[1]);
-            index.add(point);
+            points.add(new LatLonPoint(++i, latlon[0], latlon[1]));
         }
+       index  = new VPTree<>(new HaversineDistanceFunction(), points);
     }
 
     @Benchmark
@@ -58,10 +70,10 @@ public class JeoBenchmark
         long nearestCount = 0;
         for (double[] latlon : getQueryPoints()) {
             int id = 0;
-            SimpleGeospatialPoint point = new SimpleGeospatialPoint(latlon[0], latlon[1]);
-            List<MySimpleGeospatialPoint> neighbours = index.getNearestNeighbors(point, 1);
+            LatLonPoint point = new LatLonPoint(0, latlon[0], latlon[1]);
+            List<LatLonPoint> neighbours = index.getNearestNeighbors(point, 1);
             if (neighbours != null && !neighbours.isEmpty()) {
-                MySimpleGeospatialPoint nearest = neighbours.get(0);
+                LatLonPoint nearest = neighbours.get(0);
                 nearestCount++;
                 id = nearest.id;
             }
