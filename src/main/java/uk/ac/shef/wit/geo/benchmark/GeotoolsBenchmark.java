@@ -10,14 +10,12 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.operation.distance.DistanceOp;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
@@ -116,16 +114,14 @@ public class GeotoolsBenchmark
 
         // 1 degree is approximately 100km
         float queryRadiusDegrees = queryRadiusMetres / 100000f;
-        GeodeticCalculator gc = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
 
         long candidateCount = 0;
         long nearestCount = 0;
         results.clear();
         for (double[] latlon : getQueryPoints()) {
+            Coordinate coord = new Coordinate(latlon[1], latlon[0]);
             SimpleFeature nearestFeature = null;
             double nearestDistance = Double.POSITIVE_INFINITY;
-            Coordinate coord = new Coordinate(latlon[1], latlon[0]);
-            Point point = gf.createPoint(coord);
             // get all features that are within maxSearchDistance of the query
             SimpleFeatureCollection candidates = getCandidateFeatures(coord, queryRadiusDegrees);
             if (!candidates.isEmpty()) {
@@ -135,8 +131,8 @@ public class GeotoolsBenchmark
                 try (SimpleFeatureIterator itr = candidates.features()) {
                     while (itr.hasNext()) {
                         SimpleFeature feature = itr.next();
-                        Geometry featureGeometry = (Geometry) feature.getDefaultGeometry();
-                        double distance = DistanceOp.distance(point, featureGeometry);
+                        Point featureGeometry = (Point) feature.getDefaultGeometry();
+                        double distance = JTS.orthodromicDistance(coord, featureGeometry.getCoordinate(), DefaultGeographicCRS.WGS84);
                         if (nearestDistance > distance) {
                             nearestDistance = distance;
                             nearestFeature = feature;
@@ -145,9 +141,7 @@ public class GeotoolsBenchmark
                 }
             }
             if (nearestFeature != null) {
-                gc.setStartingPosition(JTS.toDirectPosition(coord, DefaultGeographicCRS.WGS84));
-                gc.setDestinationPosition(JTS.toDirectPosition(((Geometry) nearestFeature.getDefaultGeometry()).getCoordinate(), DefaultGeographicCRS.WGS84));
-                double distance = gc.getOrthodromicDistance();
+                double distance = JTS.orthodromicDistance(coord, ((Point)nearestFeature.getDefaultGeometry()).getCoordinate(), DefaultGeographicCRS.WGS84);
                 results.add(new AbstractMap.SimpleImmutableEntry<>((int) nearestFeature.getAttribute("id"), distance));
             } else {
                 results.add(new AbstractMap.SimpleImmutableEntry<>(0, -1.0));
