@@ -148,7 +148,7 @@ public abstract class AbstractBenchmark {
         Options opt = new OptionsBuilder()
 //                .include(GeotoolsBenchmark.class.getSimpleName())
 //                .include(JeoBenchmark.class.getSimpleName())
-                .include(JsiBenchmark.class.getSimpleName())
+//                .include(JsiBenchmark.class.getSimpleName())
                 .include(LuceneBenchmark.class.getSimpleName())
                 .build();
 

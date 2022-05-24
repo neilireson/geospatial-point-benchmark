@@ -9,18 +9,18 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.sandbox.search.LatLonPointPrototypeQueries;
 import org.apache.lucene.search.FieldDoc;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.LatLonPointPrototypeQueries;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.lucene.store.RAMDirectory;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -72,7 +72,7 @@ public class LuceneBenchmark
                 throws IOException {
             switch (this) {
                 case ram:
-                    return new RAMDirectory();
+                    return new ByteBuffersDirectory();
                 case mmap:
                     //noinspection ConstantConditions
                     return new MMapDirectory(getIndexPath(outputDirectory, suffix));
@@ -146,7 +146,7 @@ public class LuceneBenchmark
         }
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Fork(value = 1)
@@ -164,7 +164,7 @@ public class LuceneBenchmark
         });
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Fork(value = 1)
