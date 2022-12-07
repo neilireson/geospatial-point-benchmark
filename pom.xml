@@ -41,17 +41,17 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
 
-        <geotools.version>27.0</geotools.version>
+        <geotools.version>28.0</geotools.version>
         <indriya.version>2.1.3</indriya.version>
         <javax.measure.unit-api.version>2.1.3</javax.measure.unit-api.version>
         <jeospatial.version>0.2-SNAPSHOT</jeospatial.version>
-        <jmh.version>1.35</jmh.version>
+        <jmh.version>1.36</jmh.version>
         <jsi.version>1.0.0</jsi.version>
         <jvptree.version>0.3.0</jvptree.version>
-        <lucene.version>9.2.0</lucene.version>
-        <progressbar.version>0.9.3</progressbar.version>
+        <lucene.version>9.4.2</lucene.version>
+        <progressbar.version>0.9.5</progressbar.version>
         <si-quantity.version>2.1</si-quantity.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.5</slf4j.version>
         <slf4j.binding>slf4j-jdk14</slf4j.binding>
 
         <uberjar.name>benchmarks</uberjar.name>
