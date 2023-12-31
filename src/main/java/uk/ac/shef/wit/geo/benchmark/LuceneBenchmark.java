@@ -97,7 +97,7 @@ public class LuceneBenchmark
             boolean createIndex = true;
             Path indexPath = luceneType.getIndexPath(getOutputDirectory(), indexPrefix + "-" + numberOfIndexPoints);
             if (indexPath != null && Files.exists(indexPath)) {
-                logger.info("Reading Lucene index...");
+                logger.info("Reading Lucene index at {}...", indexPath.toAbsolutePath());
                 int count;
 
                 try (Directory directory = luceneType.getDirectory(getOutputDirectory(), indexPrefix + "-" + numberOfIndexPoints);

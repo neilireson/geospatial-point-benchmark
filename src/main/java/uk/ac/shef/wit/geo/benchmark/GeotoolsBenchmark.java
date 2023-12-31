@@ -1,6 +1,11 @@
 package uk.ac.shef.wit.geo.benchmark;
 
 import me.tongfei.progressbar.ProgressBar;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.spatial.BBOX;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.collection.SpatialIndexFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -16,11 +21,6 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.spatial.BBOX;
-import org.opengis.referencing.operation.TransformException;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -46,7 +46,7 @@ public class GeotoolsBenchmark
         extends AbstractBenchmark {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+    private static final FilterFactory ff = CommonFactoryFinder.getFilterFactory();
     private static final GeometryFactory gf = new GeometryFactory();
     private SpatialIndexFeatureCollection index;
 
